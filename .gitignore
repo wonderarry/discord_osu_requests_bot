@@ -4,3 +4,4 @@ __pycache__
 /examples
 warning_logs.txt
 debug_logs.txt
+sheets_bot_creds.json
