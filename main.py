@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.app_commands import Choice
 from utils.logging_setup import retrieve_logger
 from utils.config import settings, scope
+from utils.schemas import ReturnedUserData
 
 
 import gspread_asyncio
@@ -38,6 +39,20 @@ UsedClient.tree = app_commands.CommandTree(client)
 
 
 
+async def get_worksheet():
+    session = await google_client_manager.authorize()
+    ss = await session.open_by_key(settings.sheet_id)
+    ws = await ss.get_worksheet(0)
+    
+    return ws
+
+
+async def generate_lookup_string(worksheet):
+    last_empty_row_index = len(await worksheet.col_values(1)) + 1
+    lookup_string = 'A' + str(last_empty_row_index) + ':D' + str(last_empty_row_index)
+    
+    return lookup_string
+
 
 @UsedClient.tree.command(name='request', guild=discord.Object(id=settings.guild_id))
 @app_commands.describe(request_type='Select the request type')
@@ -48,15 +63,17 @@ UsedClient.tree = app_commands.CommandTree(client)
 ])
 async def submit_request(interaction: discord.Interaction, request_type: Choice[int], description: str):
     await interaction.response.send_message('Your message is currently being sent...', ephemeral=True)
-    session = await google_client_manager.authorize()
-    ss = await session.open_by_key(settings.sheet_id)
-    ws = await ss.get_worksheet(0)
     
-    last_empty_row_index = len(await ws.get_all_values()) + 1
-    await ws.update_cell(last_empty_row_index, 1, request_type.value)
-    await ws.update_cell(last_empty_row_index, 2, description)
-    #await interaction.response.send_message('Your message will be delivered to the corresponding staff team member.', ephemeral=True)
-    #await interaction.response.send_message(f"You have chosen: {request_type.name}, corresponding to {request_type.value}. You are telling: {description}", ephemeral=True)
+    ws = await get_worksheet()
+    
+    returned_model = ReturnedUserData(request_type_name=request_type.name,
+                                      request_description=description,
+                                      discord_user=interaction.user.name + '#' + interaction.user.discriminator,
+                                      assigned_status='unprocessed')
+    
+    
+    await ws.update(await generate_lookup_string(ws), [list(returned_model.dict().values())])
+    
     await interaction.edit_original_response(content='Your message was successfully delivered!')
     
 client.run(settings.bot_token)
