@@ -1,5 +1,5 @@
 from pydantic import BaseSettings
-from logging_setup import retrieve_logger
+from .logging_setup import retrieve_logger
 
 class Settings(BaseSettings):
         
@@ -13,4 +13,4 @@ class Settings(BaseSettings):
         
 
 settings = Settings()
-retrieve_logger().debug("Successfully obtained settings!")
+retrieve_logger(__name__).debug("Successfully obtained settings!")
