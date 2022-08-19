@@ -40,12 +40,14 @@ client = UsedClient()
 UsedClient.tree = app_commands.CommandTree(client)
 
 
-@UsedClient.tree.command(name='request', guild=discord.Object(id=settings.guild_id))
+@UsedClient.tree.command(name='request',
+                         guild=discord.Object(id=settings.guild_id),
+                         description="Report a problem or request a schedule change")
 @app_commands.describe(request_type='Select the request type')
 @app_commands.describe(description='Provide an in-depth description')
 @app_commands.choices(request_type=[
-    Choice(name='schedule/reschedule a match', value=0),
-    Choice(name='report a problem', value=1),
+    Choice(name='Schedule or reschedule a match', value=0),
+    Choice(name='Report a problem', value=1),
 ])
 async def submit_request(interaction: discord.Interaction, request_type: Choice[int], description: str):
     await interaction.response.send_message('Your message is currently being validated...', ephemeral=True)
@@ -72,7 +74,9 @@ async def submit_request(interaction: discord.Interaction, request_type: Choice[
                                                  ws))
 
 
-@UsedClient.tree.command(name='looking_for_team', guild=discord.Object(id=settings.guild_id))
+@UsedClient.tree.command(name='looking_for_team',
+                         guild=discord.Object(id=settings.guild_id),
+                         description="Post a player application form in a dedicated channel")
 @app_commands.describe(player_tier='Select the tier you are applying for')
 @app_commands.describe(description="Name your strengths and weaknesses")
 @app_commands.describe(osu_profile_id="Provide your osu! profile ID")
