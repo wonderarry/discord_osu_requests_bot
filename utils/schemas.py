@@ -7,3 +7,9 @@ class ReturnedUserData(BaseModel):
     discord_user: str
     assigned_status: str = None
     
+    
+class ApplicationPlayerData(BaseModel):
+    player_tier_value: int
+    player_profile_link: str
+    player_description: str
+    discord_user: str
