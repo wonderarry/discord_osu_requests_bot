@@ -1,5 +1,5 @@
 from utils.config import settings, google_client_manager
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 from discord import Interaction
 import aiohttp
 import json
@@ -60,3 +60,11 @@ def get_discord_name(interaction: Interaction) -> str:
 def prepare_player_description(osu_profile: str, text_description: str) -> str:
     result = f'osu! profile: {osu_profile}\n {text_description}'
     return result
+
+def prepare_request_description(discord_username: str, request_type_name: str, text_description: str) -> str:
+    result = f'Username: {discord_username}\nRequest type: {request_type_name}\nTextual description: {text_description}'
+    return result
+
+
+async def commit_values_to_worksheet(range: str, values: List[List[Any]]) -> None:
+    pass

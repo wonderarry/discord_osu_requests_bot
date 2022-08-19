@@ -5,7 +5,7 @@ from utils.logging_setup import retrieve_logger
 from utils.config import settings, google_client_manager
 from utils.schemas import ReturnedUserData
 from utils.sheet_tools import *
-from utils.views import Application_Confirm_Remove_Buttons
+from utils.views import Application_Confirm_Remove_Buttons, Request_Confirm_Remove_Button
 
 import gspread_asyncio
 from oauth2client.service_account import ServiceAccountCredentials
@@ -48,7 +48,7 @@ UsedClient.tree = app_commands.CommandTree(client)
     Choice(name='report a problem', value=1),
 ])
 async def submit_request(interaction: discord.Interaction, request_type: Choice[int], description: str):
-    await interaction.response.send_message('Your message is currently being sent...', ephemeral=True)
+    await interaction.response.send_message('Your message is currently being validated...', ephemeral=True)
 
     ws = await get_requests_worksheet()
 
@@ -58,11 +58,20 @@ async def submit_request(interaction: discord.Interaction, request_type: Choice[
                                           interaction),
                                       assigned_status='unprocessed')
 
-    await ws.update(await generate_request_lookup_string(ws), [list(returned_model.dict().values())])
+    converted_description = prepare_request_description(discord_username=returned_model.discord_user,
+                                                        request_type_name=returned_model.request_type_name,
+                                                        text_description=returned_model.request_description)
 
-    await interaction.edit_original_response(content='Your message was successfully delivered!')
+    embed = discord.Embed(color=discord.Color.blurple(
+    ), title="Request Preview", description=converted_description)
 
-
+    await interaction.edit_original_response(content="Here's a preview of the request you are about to send. Make sure everything is correct before sending it!",
+                                             embed=embed,
+                                             view=Request_Confirm_Remove_Button(
+                                                 interaction,
+                                                 await generate_request_lookup_string(ws),
+                                                 [list(returned_model.dict().values())],
+                                                 ws))
 
 
 
