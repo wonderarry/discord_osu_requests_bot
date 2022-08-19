@@ -5,7 +5,7 @@ from utils.logging_setup import retrieve_logger
 from utils.config import settings, google_client_manager
 from utils.schemas import ReturnedUserData
 from utils.sheet_tools import *
-
+from utils.views import Confirm_Remove_Buttons
 
 import gspread_asyncio
 from oauth2client.service_account import ServiceAccountCredentials
@@ -63,23 +63,7 @@ async def submit_request(interaction: discord.Interaction, request_type: Choice[
     await interaction.edit_original_response(content='Your message was successfully delivered!')
 
 
-class Confirm_Remove_Buttons(discord.ui.View):
-    def __init__(self, parent_interaction: discord.Interaction, application_embed: discord.Embed):
-        self.parent_interaction = parent_interaction
-        self.application_embed = application_embed
-        super().__init__()
 
-    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green)
-    async def confirm_button(self, button: discord.ui.Button, interaction: discord.Interaction):
-        channel = client.get_channel(settings.looking_for_team_channel_id)
-        await channel.send(embed=self.application_embed)
-        await self.parent_interaction.edit_original_response(content='The application has been successfully submitted!', embed=None, view=None)
-        return
-
-    @discord.ui.button(label='Remove', style=discord.ButtonStyle.gray)
-    async def remove_button(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await self.parent_interaction.edit_original_response(content='The application will not be submitted.', embed=None, view=None)
-        return
 
 
 @UsedClient.tree.command(name='looking_for_team', guild=discord.Object(id=settings.guild_id))
@@ -112,7 +96,7 @@ async def submit_looking_for_team(interaction: discord.Interaction, player_tier:
 
     await interaction.edit_original_response(content="Take a look at a preview of your post and make sure everything is correct!",
                                              embed=embed,
-                                             view=Confirm_Remove_Buttons(interaction, embed))
+                                             view=Confirm_Remove_Buttons(interaction, embed, client))
 
 
 client.run(settings.bot_token)
