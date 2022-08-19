@@ -5,7 +5,7 @@ from utils.logging_setup import retrieve_logger
 from utils.config import settings, google_client_manager
 from utils.schemas import ReturnedUserData
 from utils.sheet_tools import *
-from utils.views import Confirm_Remove_Buttons
+from utils.views import Application_Confirm_Remove_Buttons
 
 import gspread_asyncio
 from oauth2client.service_account import ServiceAccountCredentials
@@ -96,7 +96,7 @@ async def submit_looking_for_team(interaction: discord.Interaction, player_tier:
 
     await interaction.edit_original_response(content="Take a look at a preview of your post and make sure everything is correct!",
                                              embed=embed,
-                                             view=Confirm_Remove_Buttons(interaction, embed, client))
+                                             view=Application_Confirm_Remove_Buttons(interaction, embed, client))
 
 
 client.run(settings.bot_token)

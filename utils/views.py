@@ -1,12 +1,18 @@
 import discord
 from utils.config import settings
 
-class Confirm_Remove_Buttons(discord.ui.View):
-    def __init__(self, parent_interaction: discord.Interaction, application_embed: discord.Embed, client: discord.Client):
+
+class Base_Confirm_Remove_Buttons(discord.ui.View):
+    def __init__(self, parent_interaction: discord.Interaction, application_embed: discord.Embed = None, client: discord.Client = None):
         self.parent_interaction = parent_interaction
         self.application_embed = application_embed
         self.client = client
         super().__init__()
+
+
+class Application_Confirm_Remove_Buttons(Base_Confirm_Remove_Buttons):
+    def __init__(self, parent_interaction: discord.Interaction, application_embed: discord.Embed, client: discord.Client):
+        super().__init__(parent_interaction, application_embed, client)
 
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green)
     async def confirm_button(self, button: discord.ui.Button, interaction: discord.Interaction):
