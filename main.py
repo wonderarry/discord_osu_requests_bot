@@ -68,8 +68,7 @@ async def submit_request(interaction: discord.Interaction, request_type: Choice[
                                              view=Request_Confirm_Remove_Button(
                                                  interaction,
                                                  await generate_request_lookup_string(ws),
-                                                 [list(
-                                                     returned_model.dict().values())],
+                                                 [list(returned_model.dict().values())],
                                                  ws))
 
 
@@ -93,7 +92,10 @@ async def submit_looking_for_team(interaction: discord.Interaction, player_tier:
         await interaction.edit_original_response(content=validation_message)
         return
 
+    ws = await get_application_worksheet()
+    
     returned_model = ApplicationPlayerData(player_tier_value=player_tier.value,
+                                           player_tier_name=player_tier.name,
                                            player_profile_link=generated_profile_link,
                                            player_description=description,
                                            discord_user=get_discord_name(interaction))
@@ -103,11 +105,17 @@ async def submit_looking_for_team(interaction: discord.Interaction, player_tier:
     embed = discord.Embed(color=discord.Color.blurple(),
                           title=returned_model.discord_user,
                           description=prepare_player_description(returned_model.player_profile_link,
+                                                                 returned_model.player_tier_name,
                                                                  returned_model.player_description))
 
     await interaction.edit_original_response(content="Take a look at a preview of your post and make sure everything is correct!",
                                              embed=embed,
-                                             view=Application_Confirm_Remove_Buttons(interaction, embed, client))
+                                             view=Application_Confirm_Remove_Buttons(interaction,
+                                                                                     embed,
+                                                                                     client,
+                                                                                     await generate_application_lookup_string(ws),
+                                                                                     [list(returned_model.dict().values())[1:]],
+                                                                                     ws))
 
 
 client.run(settings.bot_token)

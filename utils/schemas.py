@@ -10,6 +10,7 @@ class ReturnedUserData(BaseModel):
     
 class ApplicationPlayerData(BaseModel):
     player_tier_value: int
+    player_tier_name: str
     player_profile_link: str
     player_description: str
     discord_user: str

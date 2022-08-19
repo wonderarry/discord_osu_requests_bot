@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     bot_token: str
     creds_filename: str
     requests_sheet_id: str
+    requests_worksheet: int
+    application_sheet_id: str
+    application_worksheet: int
     looking_for_team_channel_id: int
     osu_api_key: str
     #high ranks mean lower rank number (higher pp value)

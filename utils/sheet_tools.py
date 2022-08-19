@@ -7,9 +7,11 @@ import json
 async def get_requests_worksheet():
     session = await google_client_manager.authorize()
     ss = await session.open_by_key(settings.requests_sheet_id)
-    ws = await ss.get_worksheet(0)
+    ws = await ss.get_worksheet(settings.requests_worksheet)
     
     return ws
+
+
 
 
 async def generate_request_lookup_string(worksheet) -> str:
@@ -57,14 +59,23 @@ async def validate_osu_profile(provided_tier: int, provided_id: int) -> List[Uni
 def get_discord_name(interaction: Interaction) -> str:
     return interaction.user.name + '#' + interaction.user.discriminator
 
-def prepare_player_description(osu_profile: str, text_description: str) -> str:
-    result = f'osu! profile: {osu_profile}\n {text_description}'
+def prepare_player_description(osu_profile: str, tournament_tier_name: str, text_description: str) -> str:
+    result = f'Player tier: {tournament_tier_name}\nosu! profile: {osu_profile}\nStrengths and weaknesses: {text_description}'
     return result
 
 def prepare_request_description(discord_username: str, request_type_name: str, text_description: str) -> str:
     result = f'Username: {discord_username}\nRequest type: {request_type_name}\nTextual description: {text_description}'
     return result
 
+async def get_application_worksheet():
+    session = await google_client_manager.authorize()
+    ss = await session.open_by_key(settings.application_sheet_id)
+    ws = await ss.get_worksheet(settings.application_worksheet)
+    
+    return ws
 
-async def commit_values_to_worksheet(range: str, values: List[List[Any]]) -> None:
-    pass
+async def generate_application_lookup_string(worksheet) -> str:
+    last_empty_row_index = len(await worksheet.col_values(1)) + 1
+    lookup_string = 'A' + str(last_empty_row_index) + ':D' + str(last_empty_row_index)
+    
+    return lookup_string
