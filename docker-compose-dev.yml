@@ -1,0 +1,7 @@
+version: "3"
+services:
+ discordbot:
+  build: .
+  command: bash -c 'python3 main.py'
+  env_file: .env
+  
