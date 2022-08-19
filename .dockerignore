@@ -1,0 +1,4 @@
+__pycache__
+debug_logs.txt
+warning_logs.txt
+.env

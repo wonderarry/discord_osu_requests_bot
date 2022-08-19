@@ -114,7 +114,7 @@ async def submit_looking_for_team(interaction: discord.Interaction, player_tier:
                                                                                      embed,
                                                                                      client,
                                                                                      await generate_application_lookup_string(ws),
-                                                                                     [list(returned_model.dict().values())[1:]],
+                                                                                     [list(returned_model.dict(exclude={'player_tier_value'}).values())],
                                                                                      ws))
 
 
