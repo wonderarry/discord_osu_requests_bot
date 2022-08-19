@@ -112,24 +112,3 @@ async def submit_looking_for_team(interaction: discord.Interaction, player_tier:
 
 client.run(settings.bot_token)
 
-# simple examples, to be removed
-
-# @UsedClient.tree.command(name='test', guild=discord.Object(id=settings.guild_id))
-# async def slash(interaction: discord.Interaction, number: int, string: str):
-#     await interaction.response.send_message(f'{number=} {string=}', ephemeral=True)
-
-# @UsedClient.tree.command(name='asd', guild=discord.Object(id=settings.guild_id))
-# @app_commands.describe(attachment='The file to upload')
-# async def upload(interaction: discord.Interaction, attachment: discord.Attachment):
-#     await interaction.response.send_message(f'Thanks for uploading {attachment.filename}!', ephemeral=True)
-
-
-# @UsedClient.tree.command(name='fruit', guild=discord.Object(id=settings.guild_id))
-# @app_commands.describe(fruits='fruits to choose from')
-# @app_commands.choices(fruits=[
-#     Choice(name='apple', value=1),
-#     Choice(name='banana', value=2),
-#     Choice(name='cherry', value=3),
-# ])
-# async def fruit(interaction: discord.Interaction, fruits: Choice[int]):
-#     await interaction.response.send_message(f'Your favourite fruit is {fruits.name}.')
