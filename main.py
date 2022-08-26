@@ -1,5 +1,6 @@
 import discord
 from discord import app_commands
+from discord import player
 from discord.app_commands import Choice
 from utils.logging_setup import retrieve_logger
 from utils.config import settings, google_client_manager
@@ -50,7 +51,8 @@ UsedClient.tree = app_commands.CommandTree(client)
     Choice(name='Report a problem', value=1),
 ])
 async def submit_request(interaction: discord.Interaction, request_type: Choice[int], description: str):
-    await interaction.response.send_message('Your message is currently being validated...', ephemeral=True)
+    await interaction.response.send_message('Your message is currently being prepared for submission...', ephemeral=True)
+    main_logger.debug(f"User {get_discord_name(interaction)} has posted a request of type {request_type.value}. Payload: {description}")
 
     ws = await get_requests_worksheet()
 
@@ -85,24 +87,28 @@ async def submit_request(interaction: discord.Interaction, request_type: Choice[
     Choice(name='Mid tier', value=1),
     Choice(name='Low tier', value=2),
 ])
-async def submit_looking_for_team(interaction: discord.Interaction, player_tier: Choice[int], description: str, osu_profile_id: int):
+@app_commands.describe(tourney_badges="Number of your tournament badges")
+async def submit_looking_for_team(interaction: discord.Interaction, player_tier: Choice[int], description: str, osu_profile_id: int, tourney_badges: int = 0):
     await interaction.response.send_message('Validating the data...', ephemeral=True)
 
-    is_profile_valid, validation_message, generated_profile_link = await validate_osu_profile(player_tier.value, osu_profile_id)
+    is_profile_valid, validation_message, generated_profile_link, obtained_rank, bws_rank = await validate_osu_profile(player_tier.value, osu_profile_id, tourney_badges)
 
     if not is_profile_valid:
         main_logger.warning(
             f"User {get_discord_name(interaction)} has not passed the validation! Validation message: {validation_message}")
         await interaction.edit_original_response(content=validation_message)
         return
-
+    main_logger.debug(f"User {get_discord_name(interaction)} has passed the validation. Rank: {obtained_rank}, badge count: {tourney_badges}, BWS rank: {bws_rank}, profile link: {generated_profile_link}")
     ws = await get_application_worksheet()
     
     returned_model = ApplicationPlayerData(player_tier_value=player_tier.value,
                                            player_tier_name=player_tier.name,
                                            player_profile_link=generated_profile_link,
                                            player_description=description,
-                                           discord_user=get_discord_name(interaction))
+                                           discord_user=get_discord_name(interaction),
+                                           player_rank=obtained_rank,
+                                           player_bws_rank=bws_rank,
+                                           player_badge_count=tourney_badges)
 
     await interaction.edit_original_response(content="Profile successfully validated! Creating a post...")
 
@@ -110,7 +116,10 @@ async def submit_looking_for_team(interaction: discord.Interaction, player_tier:
                           title=returned_model.discord_user,
                           description=prepare_player_description(returned_model.player_profile_link,
                                                                  returned_model.player_tier_name,
-                                                                 returned_model.player_description))
+                                                                 returned_model.player_description,
+                                                                 returned_model.player_rank,
+                                                                 returned_model.player_badge_count,
+                                                                 returned_model.player_bws_rank))
 
     await interaction.edit_original_response(content="Take a look at a preview of your post and make sure everything is correct!",
                                              embed=embed,
@@ -120,7 +129,6 @@ async def submit_looking_for_team(interaction: discord.Interaction, player_tier:
                                                                                      await generate_application_lookup_string(ws),
                                                                                      [list(returned_model.dict(exclude={'player_tier_value'}).values())],
                                                                                      ws))
-
 
 client.run(settings.bot_token)
 

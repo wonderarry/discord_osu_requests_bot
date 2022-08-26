@@ -14,3 +14,6 @@ class ApplicationPlayerData(BaseModel):
     player_profile_link: str
     player_description: str
     discord_user: str
+    player_rank: int
+    player_badge_count: int
+    player_bws_rank: float

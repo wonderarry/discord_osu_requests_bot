@@ -40,6 +40,7 @@ class OsuBotManager(ServiceCreds):
     #--------low tiers--------#
     high_rank_low_tier_limit: int
     low_rank_low_tier_limit: int
+    bws_factor: float
 
 
 class Settings(OsuBotManager):
@@ -70,8 +71,6 @@ creds_data = settings.dict(include={
     'auth_uri', 'token_uri', 'auth_provider_x509_cert_url', 'client_x509_cert_url'})
 creds_data['private_key'] = creds_data['private_key'].replace('\\n', '\n')
 
-google_creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_data)
-
-google_client_manager = gspread_asyncio.AsyncioGspreadClientManager(lambda: google_creds)
+google_client_manager = gspread_asyncio.AsyncioGspreadClientManager(lambda: ServiceAccountCredentials.from_json_keyfile_dict(creds_data))
 
 
